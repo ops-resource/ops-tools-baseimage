@@ -168,7 +168,7 @@
             The github repository that contains the source code for the current product. Used when getting the release notes
             from the github issues, e.g. nbuildkit.
         -->
-        <GitHubRepositoryName Condition=" '$(GitHubRepositoryName)' == '' ">$(GitHubUserName)\ops-tools-baseimage</GitHubRepositoryName>
+        <GitHubRepositoryName Condition=" '$(GitHubRepositoryName)' == '' ">ops-tools-baseimage</GitHubRepositoryName>
 
         <!--
             The full URL to the GIT repository. Can include the '%GitHubToken%' environment variable for authenticated
