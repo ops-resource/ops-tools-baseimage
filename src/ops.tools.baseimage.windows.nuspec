@@ -23,7 +23,11 @@
             src="$DirSrc$\scripts\windows\**\*.*"
             target="scripts" />
         <file
-            src="$DirSrc$\cookbooks\ops-tools-baseimage-windows\**\*.*"
+            src="$DirSrc$\cookbooks\ops-tools-baseimage-windows\**\*"
+            exclude="$DirSrc$\cookbooks\ops-tools-baseimage-windows\metadata.rb"
+            target="cookbooks\ops-tools-baseimage-windows" />
+        <file
+            src="$DirTemp$\metadata.rb"
             target="cookbooks\ops-tools-baseimage-windows" />
 
         <file

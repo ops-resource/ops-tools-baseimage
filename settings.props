@@ -291,7 +291,9 @@
         <!-- <DirPackages Condition=" '$(DirPackages)' == '' ">$(DirWorkspace)\packages</DirPackages> -->
 
         <!-- The directory that contains the source files for the project -->
-        <!-- <DirSrc Condition=" '$(DirSrc)' == '' ">$(DirWorkspace)\src</DirSrc> -->
+        <DirSrc Condition=" '$(DirSrc)' == '' ">$(DirWorkspace)\src</DirSrc>
+        <DirSrcCookbooks>$(DirSrc)\cookbooks</DirSrcCookbooks>
+        <DirSrcCookbooksBaseImageWindows>$(DirSrcCookbooks)\ops-tools-baseimage-windows</DirSrcCookbooksBaseImageWindows>
 
         <!-- The directory that contains the template files for the project -->
         <!-- <DirTemplates Condition=" '$(DirTemplates)' == '' ">$(DirWorkspace)\templates</DirTemplates> -->
