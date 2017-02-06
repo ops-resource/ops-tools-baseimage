@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <!--
+        This file describes the different configuration phases for a windows machine.
+
+        For more information about the different stages see: https://technet.microsoft.com/en-us/library/hh824982.aspx
+    -->
+
+    <!--
+         Many aspects of the installation process can be automated during the windowsPE configuration pass. In this pass you can configure:
+         * Windows PE options: These options can include specifying the location of the Windows PE log file, which enables networking or a
+           Windows PE page file.
+
+         * Windows Setup options: These options can include specifying the Windows image to install and configuring a disk on the destination computer.
+
+        During this configuration pass, the Windows image is copied to the destination computer after the settings in the windowsPE configuration pass
+        are processed.
+
+        If your installation of Windows PE requires boot-critical drivers to access the local hard disk drive or a network, use this configuration pass
+        to add drivers to the Windows PE driver store and to reflect the required boot-critical drivers
+    -->
+    <settings pass="windowsPE">
+    </settings>
+
+    <!--
+         During this configuration pass, computer-specific information is removed from the Windows installation enabling you to
+         capture and reapply the Windows image to different computers. For example, during this pass, the unique security ID (SID),
+         unique device drivers, and other hardware-specific settings are removed from the image.
+
+        This configuration pass enables you to minimally configure the sysprep /generalize command, in addition to configuring other Windows
+        settings that must persist on your master image.
+
+        After the generalize pass finishes, the next time that Windows image boots, the specialize configuration pass runs. If you want to
+        retain the unique device drivers that are installed to your Windows installation, you can use the
+        Microsoft-Windows-PnpSysprep | PersistAllDeviceInstalls setting. If this setting is configured, unique device drivers are not
+        removed from the installation.
+    -->
+    <settings pass="generalize">
+        <component
+            language="neutral"
+            name="Microsoft-Windows-Security-SPP"
+            processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <SkipRearm>1</SkipRearm>
+        </component>
+    </settings>
+
+    <!--
+         This configuration pass is used to create and configure information in the Windows image, and is specific to the hardware that the
+         Windows image is installing to.
+
+        After the Windows image boots for the first time, the specialize configuration pass runs. During this pass, unique security IDs (SIDs)
+        are created. Additionally, you can configure many Windows features, including network settings, international settings, and domain information.
+        The answer file settings for the specialize pass appear in audit mode. When a computer boots to audit mode, the auditSystem pass runs, and
+        the computer processes the auditUser settings.
+    -->
+    <settings pass="specialize">
+    </settings>
+
+    <!--
+        During this configuration pass, settings are applied to Windows before Windows Welcome starts.
+        This pass is typically used to configure Windows Shell options, create user accounts, and specify language and
+        locale settings. The answer file settings for the oobeSystem pass appear in Windows Welcome, also known as OOBE.
+    -->
+    <settings pass="oobeSystem">
+        <component
+            language="neutral"
+            name="Microsoft-Windows-International-Core"
+            processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <InputLocale>1409:00000409</InputLocale>
+            <SystemLocale>en-NZ</SystemLocale>
+            <UILanguage>en-NZ</UILanguage>
+            <UserLocale>en-NZ</UserLocale>
+            <UILanguageFallback>en-US</UILanguageFallback>
+        </component>
+        <component
+            language="neutral"
+            name="Microsoft-Windows-Shell-Setup"
+            processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <NetworkLocation>Work</NetworkLocation>
+                <ProtectYourPC>1</ProtectYourPC>
+                <SkipUserOOBE>true</SkipUserOOBE>
+                <SkipMachineOOBE>true</SkipMachineOOBE>
+            </OOBE>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>${LocalAdministratorPassword}</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+            </UserAccounts>
+            <TimeZone>New Zealand Standard Time</TimeZone>
+        </component>
+    </settings>
+</unattend>
