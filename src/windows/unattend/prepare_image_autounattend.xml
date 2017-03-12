@@ -21,83 +21,76 @@
     -->
     <settings pass="windowsPE">
         <component
-            name="Microsoft-Windows-International-Core-WinPE"
-            publicKeyToken="31bf3856ad364e35"
             language="neutral"
-            versionScope="nonSxS"
+            name="Microsoft-Windows-International-Core-WinPE"
             processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            versionScope="nonSxS"
             xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">>
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <InputLocale>en-us</InputLocale>
             <SetupUILanguage>
                 <UILanguage>en-us</UILanguage>
             </SetupUILanguage>
-            <InputLocale>en-us</InputLocale>
             <SystemLocale>en-us</SystemLocale>
             <UILanguage>en-us</UILanguage>
             <UserLocale>en-us</UserLocale>
         </component>
 
         <component
+            language="neutral"
             name="Microsoft-Windows-Setup"
             processorArchitecture="amd64"
             publicKeyToken="31bf3856ad364e35"
-            language="neutral"
             versionScope="nonSxS"
             xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <!--
-                Start UEFI compatible
-            -->
             <DiskConfiguration>
                 <Disk wcm:action="add">
+                    <!--
+                        Create the partitions for an UEFI-based computer (see here: https://technet.microsoft.com/en-us/library/cc765950(v=ws.10).aspx)
+                        UEFI-based computers need the following partitions:
+
+                        - Unified Extensible Firmware Interface System partition (ESP)
+                        - Microsoft Reserved Partition (MSR) if GTP disks are used
+                        - OS partition
+                    -->
                     <CreatePartitions>
                         <CreatePartition wcm:action="add">
                             <Order>1</Order>
-                            <Size>350</Size>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>2</Order>
-                            <Size>100</Size>
+                            <Size>200</Size>
                             <Type>EFI</Type>
                         </CreatePartition>
                         <CreatePartition wcm:action="add">
-                            <Order>3</Order>
+                            <Order>2</Order>
                             <Size>128</Size>
                             <Type>MSR</Type>
                         </CreatePartition>
                         <CreatePartition wcm:action="add">
-                            <Order>4</Order>
                             <Extend>true</Extend>
+                            <Order>3</Order>
                             <Type>Primary</Type>
                         </CreatePartition>
                     </CreatePartitions>
+                    <DiskID>0</DiskID>
                     <ModifyPartitions>
                         <ModifyPartition wcm:action="add">
+                            <Format>FAT32</Format>
+                            <Label>Boot</Label>
                             <Order>1</Order>
                             <PartitionID>1</PartitionID>
-                            <Label>WINRE</Label>
-                            <Format>NTFS</Format>
-                            <TypeID>de94bba4-06d1-4d40-a16a-bfd50179d6ac</TypeID>
                         </ModifyPartition>
                         <ModifyPartition wcm:action="add">
                             <Order>2</Order>
                             <PartitionID>2</PartitionID>
-                            <Label>System</Label>
-                            <Format>FAT32</Format>
                         </ModifyPartition>
                         <ModifyPartition wcm:action="add">
+                            <Format>NTFS</Format>
+                            <Label>Windows</Label>
                             <Order>3</Order>
                             <PartitionID>3</PartitionID>
                         </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Order>4</Order>
-                            <PartitionID>4</PartitionID>
-                            <Label>Windows</Label>
-                            <Format>NTFS</Format>
-                        </ModifyPartition>
                     </ModifyPartitions>
-                    <DiskID>0</DiskID>
                     <WillWipeDisk>true</WillWipeDisk>
                 </Disk>
             </DiskConfiguration>
@@ -106,29 +99,52 @@
                     <InstallFrom>
                         <MetaData wcm:action="add">
                             <Key>/IMAGE/NAME </Key>
-                            <Value>Windows Server 2016 SERVERSTANDARDCORE</Value>
+                            <Value>Windows Server 2016 SERVERDATACENTER</Value>
                         </MetaData>
                     </InstallFrom>
                     <InstallTo>
                         <DiskID>0</DiskID>
-                        <PartitionID>4</PartitionID>
+                        <PartitionID>3</PartitionID>
                     </InstallTo>
                 </OSImage>
             </ImageInstall>
-            <!-- Finish UEFI compatible -->
-
             <UserData>
-                <!-- Product Key from http://technet.microsoft.com/en-us/library/jj612867.aspx -->
-                <ProductKey>
-                    <!-- Do not uncomment the Key element if you are using trial ISOs -->
-                    <!-- You must uncomment the Key element (and optionally insert your own key) if you are using retail or volume license ISOs -->
-                    <Key>${ProductKey}</Key>
-                    <WillShowUI>OnError</WillShowUI>
-                </ProductKey>
                 <AcceptEula>true</AcceptEula>
                 <FullName>${CompanyName}</FullName>
                 <Organization>${CompanyName}</Organization>
+                <ProductKey>
+                    <!--
+                        Set the generic AVMA key so that the VM is automatically activated against
+                        the Hyper-V host server license.
+                        See here: https://technet.microsoft.com/en-nz/library/dn303421.aspx
+                        and here: http://terrytlslau.tls1.cc/2014/02/automatic-virtual-machine-activation.html
+                        and here: https://technet.microsoft.com/en-us/library/jj612867.aspx#Windows%20Server%202016
+                    -->
+                    <Key>${ProductKey}</Key>
+                    <WillShowUI>Never</WillShowUI>
+                </ProductKey>
             </UserData>
+        </component>
+    </settings>
+
+    <!--
+        Applies updates to a Windows image. Also applies packages, including software fixes, language packs, and other
+        security updates.
+
+        During this pass, you can add drivers to a Windows image before that image is installed and processes out-of-box
+        device drivers during Windows Setup.
+    -->
+    <settings pass="offlineServicing">
+        <component
+            name="Microsoft-Windows-LUA-Settings"
+            processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            language="neutral"
+            versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <!-- Disable UAC -->
+            <EnableLUA>false</EnableLUA>
         </component>
     </settings>
 
@@ -197,29 +213,15 @@
             <RunSynchronous>
                 <!-- Set powershell execution policy to be 'RemoteSigned' -->
                 <RunSynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\01-PowershellExecutionPolicy32.txt 2>$1 (powershell -Command "$ErrorActionPreference = 'Stop';$ProgressPreference='SilentlyContinue';Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force")</CommandLine>
                     <Description>Set Execution Policy 64 Bit</Description>
                     <Order>1</Order>
+                    <Path>cmd /c > c:\windows\temp\01-PowershellExecutionPolicy64.txt 2>$1 (powershell -Command "$ErrorActionPreference = 'Stop';$ProgressPreference='SilentlyContinue';Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force")</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
-                    <CommandLine>c:\windows\SysWOW64\cmd.exe /c > c:\windows\temp\02_PowershellExecutionPolicy64.txt 2>$1 (powershell -Command "$ErrorActionPreference = 'Stop';$ProgressPreference='SilentlyContinue';Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force")</CommandLine>
                     <Description>Set Execution Policy 32 Bit</Description>
                     <Order>2</Order>
+                    <Path>c:\windows\SysWOW64\cmd.exe /c > c:\windows\temp\02_PowershellExecutionPolicy32.txt 2>$1 (powershell -Command "$ErrorActionPreference = 'Stop';$ProgressPreference='SilentlyContinue';Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force")</Path>
                 </RunSynchronousCommand>
-
-                <!-- Diable the 'new network' window -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\03-BoxImageCreation.txt 2>$1 (reg add "HKLM\System\CurrentControlSet\Control\Network\NewNetworkWindowOff" /f)</CommandLine>
-                    <Description>Network prompt</Description>
-                    <Order>3</Order>
-                </SynchronousCommand>
-
-                <!-- Set all network interfaces to be private so that we can actually use them sensibly -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\04-fixnetwork.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-NetworkLocationToPrivate.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-NetworkLocationToPrivate.ps1 ))</CommandLine>
-                    <Description>Fix public network</Description>
-                    <Order>4</Order>
-                </SynchronousCommand>
             </RunSynchronous>
         </component>
 
@@ -235,7 +237,7 @@
             xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <RegisteredOwner>${CompanyName}</RegisteredOwner>
-            <ComputerName>${ComputerName}</ComputerName>
+            <ComputerName>${MachineName}</ComputerName>
 
             <!--
                 Set the generic AVMA key so that the VM is automatically activated against
@@ -307,7 +309,7 @@
             <Interfaces>
                 <Interface wcm:action="add">
                     <DNSServerSearchOrder>
-${DnsIPAddresses}
+                        <IpAddress wcm:action="add" wcm:keyValue="1">${DnsIPAddresses}</IpAddress>
                     </DNSServerSearchOrder>
                     <Identifier>Ethernet</Identifier>
                 </Interface>
@@ -343,17 +345,6 @@ ${DnsIPAddresses}
         </component>
 
         <component
-            name="Microsoft-Windows-OutOfBoxExperience"
-            processorArchitecture="amd64"
-            publicKeyToken="31bf3856ad364e35"
-            language="neutral"
-            versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <DoNotOpenInitialConfigurationTasksAtLogon>true</DoNotOpenInitialConfigurationTasksAtLogon>
-        </component>
-
-        <component
             name="Microsoft-Windows-Security-SPP-UX"
             processorArchitecture="amd64"
             publicKeyToken="31bf3856ad364e35"
@@ -384,33 +375,117 @@ ${DnsIPAddresses}
                 Create a local user and automatically log it on. This needs to be done so that we can install
                 the updates.
             -->
-            <UserAccounts>
-                <AdministratorPassword>
-                    <Value>${LocalAdministratorPassword}</Value>
-                    <PlainText>true</PlainText>
-                </AdministratorPassword>
-                <LocalAccounts>
-                    <LocalAccount wcm:action="add">
-                        <Password>
-                            <Value>updates</Value>
-                            <PlainText>true</PlainText>
-                        </Password>
-                        <Group>administrators</Group>
-                        <DisplayName>updates</DisplayName>
-                        <Name>updates</Name>
-                        <Description>updates</Description>
-                    </LocalAccount>
-                </LocalAccounts>
-            </UserAccounts>
             <AutoLogon>
                 <Password>
-                    <Value>updates</Value>
+                    <Value>${LocalAdministratorPassword}</Value>
                     <PlainText>true</PlainText>
                 </Password>
                 <Enabled>true</Enabled>
-                <Username>updates</Username>
+                <Username>${LocalAdministratorName}</Username>
             </AutoLogon>
+            <CopyProfile>true</CopyProfile>
+            <FirstLogonCommands>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\03-DisableNetworkPrompt.txt 2>$1 (reg add "HKLM\System\CurrentControlSet\Control\Network\NewNetworkWindowOff" /f)</CommandLine>
+                    <Description>Network prompt</Description>
+                    <Order>3</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\04-ChangeNetworkToPrivate.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-NetworkLocationToPrivate.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-NetworkLocationToPrivate.ps1 ))</CommandLine>
+                    <Description>Fix public network</Description>
+                    <Order>4</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
 
+                <!-- WINRM SETTINGS -->
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\5-ConfigureWinRM.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-WinRM.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-WinRM.ps1 )) </CommandLine>
+                    <Description>Configure WinRm</Description>
+                    <Order>5</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+
+                <!-- FIREWALL SETTINGS -->
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\30-FirewallEnableWinRM.txt 2>$1 (netsh advfirewall firewall set rule group="remote administration" new enable=yes)</CommandLine>
+                    <Description>Win RM adv firewall enable</Description>
+                    <Order>30</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\31-FirewallOpenWinRMPort5985-AddRule.txt 2>$1 (netsh advfirewall firewall add rule name="WinRM 5985" protocol=TCP dir=in localport=5985 action=allow) </CommandLine>
+                    <Description>Win RM port open</Description>
+                    <Order>31</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\32-FirewallOpenWinRMPort5985-AddPort.txt 2>$1 (netsh firewall add portopening TCP 5985 "Port 5985")  </CommandLine>
+                    <Description>Win RM port open</Description>
+                    <Order>32</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\33-FirewallOpenWinRMPort5986-AddRule.txt 2>$1 (netsh advfirewall firewall add rule name="WinRM 5986" protocol=TCP dir=in localport=5986 action=allow)</CommandLine>
+                    <Description>Win RM port open</Description>
+                    <Order>33</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\34-FirewallOpenWinRMPort5986-AddPort.txt 2>$1 (netsh firewall add portopening TCP 5986 "Port 5986") </CommandLine>
+                    <Description>Win RM port open</Description>
+                    <Order>34</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\35-FirewallAllowPing.txt 2>$1 (netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol=icmpv4:8,any dir=in action=allow) </CommandLine>
+                    <Description>ICMP open for ping</Description>
+                    <Order>35</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+
+                <!-- WINDOWS SETTINGS -->
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\54-ZeroHibernateFile.txt 2>$1 (reg ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f)</CommandLine>
+                    <Order>54</Order>
+                    <Description>Zero Hibernation File</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\55-DisableHibernate.txt 2>$1 (reg ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f)</CommandLine>
+                    <Order>55</Order>
+                    <Description>Disable Hibernation Mode</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+
+                <!-- WITH WINDOWS UPDATES -->
+                <!--
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\96-ConfigureWSUSServer.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-ClientWSUSSetting.task.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-ClientWSUSSetting.task.ps1 ))</CommandLine>
+                    <Order>96</Order>
+                    <Description>Configure WSUS Server</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                -->
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\97-TurnOffPowerSavingAndTimeouts.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-PowerConfig.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-PowerConfig.ps1 ))</CommandLine>
+                    <Order>97</Order>
+                    <Description>Turn off all power saving and timeouts</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\98-EnableMicrosoftUpdates.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Enable-MicrosoftUpdates.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Enable-MicrosoftUpdates.ps1 ))</CommandLine>
+                    <Order>98</Order>
+                    <Description>Enable Microsoft Updates</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\99-InstallWindowsUpdates.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Invoke-WindowsUpdate.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Invoke-WindowsUpdate.ps1 ))</CommandLine>
+                    <Description>Install Windows Updates</Description>
+                    <Order>99</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+            </FirstLogonCommands>
             <OOBE>
                 <HideEULAPage>true</HideEULAPage>
                 <HideLocalAccountScreen>true</HideLocalAccountScreen>
@@ -420,128 +495,30 @@ ${DnsIPAddresses}
                 <ProtectYourPC>3</ProtectYourPC>
                 <NetworkLocation>Work</NetworkLocation>
             </OOBE>
-
-
+            <TimeZone>New Zealand Standard Time</TimeZone>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>${LocalAdministratorPassword}</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value>${LocalAdministratorPassword}</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Group>administrators</Group>
+                        <DisplayName>${LocalAdministratorName}</DisplayName>
+                        <Name>${LocalAdministratorName}</Name>
+                        <Description>${LocalAdministratorName}</Description>
+                    </LocalAccount>
+                </LocalAccounts>
+            </UserAccounts>
             <WindowsFeatures>
+                <ShowInternetExplorer>true</ShowInternetExplorer>
                 <ShowMediaCenter>false</ShowMediaCenter>
                 <ShowWindowsMediaPlayer>false</ShowWindowsMediaPlayer>
-                <ShowInternetExplorer>true</ShowInternetExplorer>
             </WindowsFeatures>
-            <TimeZone>New Zealand Standard Time</TimeZone>
-            <CopyProfile>true</CopyProfile>
-
-            <FirstLogonCommands>
-                <!-- FIREWALL SETTINGS -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\30-BoxImageCreation.txt 2>$1 (netsh advfirewall firewall set rule group="remote administration" new enable=yes)</CommandLine>
-                    <Description>Win RM adv firewall enable</Description>
-                    <Order>30</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\31-BoxImageCreation.txt 2>$1 (netsh advfirewall firewall add rule name="WinRM 5985" protocol=TCP dir=in localport=5985 action=allow) </CommandLine>
-                    <Description>Win RM port open</Description>
-                    <Order>31</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\32-BoxImageCreation.txt 2>$1 (netsh firewall add portopening TCP 5985 "Port 5985")  </CommandLine>
-                    <Description>Win RM port open</Description>
-                    <Order>32</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\33-BoxImageCreation.txt 2>$1 (netsh advfirewall firewall add rule name="WinRM 5986" protocol=TCP dir=in localport=5986 action=allow)</CommandLine>
-                    <Description>Win RM port open</Description>
-                    <Order>33</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\34-BoxImageCreation.txt 2>$1 (netsh firewall add portopening TCP 5986 "Port 5986") </CommandLine>
-                    <Description>Win RM port open</Description>
-                    <Order>34</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\35-BoxImageCreation.txt 2>$1 (netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol=icmpv4:8,any dir=in action=allow) </CommandLine>
-                    <Description>ICMP open for ping</Description>
-                    <Order>35</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-
-                <!-- WINDOWS SETTINGS -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\50-BoxImageCreation.txt 2>$1 (reg ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f)</CommandLine>
-                    <Order>50</Order>
-                    <Description>Show file extensions in Explorer</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\51-BoxImageCreation.txt 2>$1 (reg ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f) </CommandLine>
-                    <Order>51</Order>
-                    <Description>Enable QuickEdit mode</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\52-BoxImageCreation.txt 2>$1 (reg ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f)</CommandLine>
-                    <Order>52</Order>
-                    <Description>Show Run command in Start Menu</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\53-BoxImageCreation.txt 2>$1 (reg ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f)</CommandLine>
-                    <Order>53</Order>
-                    <Description>Show Administrative Tools in Start Menu</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\54-BoxImageCreation.txt 2>$1 (reg ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f)</CommandLine>
-                    <Order>54</Order>
-                    <Description>Zero Hibernation File</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\55-BoxImageCreation.txt 2>$1 (reg ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f)</CommandLine>
-                    <Order>55</Order>
-                    <Description>Disable Hibernation Mode</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-
-                <!-- WITH WINDOWS UPDATES -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\96-Set-ClientWSUS.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-ClientWSUSSetting.task.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-ClientWSUSSetting.task.ps1 ))</CommandLine>
-                    <Order>96</Order>
-                    <Description>Configure WSUS Server</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\97-set-power-config.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Set-PowerConfig.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Set-PowerConfig.ps1 ))</CommandLine>
-                    <Order>97</Order>
-                    <Description>Turn off all power saving and timeouts</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\98-microsoft-updates.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Enable-MicrosoftUpdates.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Enable-MicrosoftUpdates.ps1 ))</CommandLine>
-                    <Order>98</Order>
-                    <Description>Enable Microsoft Updates</Description>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\99-win-updates.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Invoke-WindowsUpdate.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Invoke-WindowsUpdate.ps1 ))</CommandLine>
-                    <Description>Install Windows Updates</Description>
-                    <Order>99</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-
-
-                <!-- WINRM SETTINGS -->
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd /c > c:\windows\temp\05-enable-winrm.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\enable-winrm.task.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\enable-winrm.task.ps1 )) </CommandLine>
-                    <Description>Enable WinRm</Description>
-                    <Order>250</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-            </FirstLogonCommands>
         </component>
 
         <!--

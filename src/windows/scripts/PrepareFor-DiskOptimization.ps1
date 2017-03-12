@@ -11,47 +11,34 @@
 [CmdletBinding()]
 param()
 
+Write-Host "Removing temp folders"
+$tempfolders = @("C:\Windows\Temp\*", "C:\Windows\Prefetch\*", "C:\Documents and Settings\*\Local Settings\temp\*", "C:\Users\*\Appdata\Local\Temp\*")
+Remove-Item $tempfolders -ErrorAction SilentlyContinue -Force -Recurse
 
-Write-Host "Cleaning Temp Files"
+if ($SkipWindowsUpdates)
+{
+    Write-Host "Skipping cleanup"
+    exit 0
+}
+
 try
 {
-    $path = 'C:\Windows\Temp\*'
-    Takeown /d Y /R /f $path
-    Icacls $path /GRANT:r administrators:F /T /c /q  2>&1
-    Remove-Item $path -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase"
+    Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 }
 catch
 {
-    # Don't care if this doesn't work.
+    Write-Host "Unable to reset base. Should be ok if patches have been slipstreamed."
 }
 
-Write-Host "Optimizing Drive"
-Optimize-Volume -DriveLetter C
+$moduleExist = Get-Module servermanager
 
-Write-Host "Wiping empty space on disk..."
-$FilePath="c:\zero.tmp"
-$Volume = Get-WmiObject win32_logicaldisk -filter "DeviceID='C:'"
-$ArraySize= 64kb
-$SpaceToLeave= $Volume.Size * 0.05
-$FileSize= $Volume.FreeSpace - $SpacetoLeave
-$ZeroArray= new-object byte[]($ArraySize)
-
-$Stream= [io.File]::OpenWrite($FilePath)
-try
+if ($moduleExist)
 {
-   $CurFileSize = 0
-    while ($CurFileSize -lt $FileSize)
-    {
-        $Stream.Write($ZeroArray,0, $ZeroArray.Length)
-        $CurFileSize +=$ZeroArray.Length
-    }
-}
-finally
-{
-    if($Stream)
-    {
-        $Stream.Close()
-    }
+    Write-Host 'Get-WindowsFeature | ? { $_.InstallState -eq "Available" } | Uninstall-WindowsFeature -Remove'
+
+    import-module servermanager
+    Get-WindowsFeature | ? { $_.InstallState -eq 'Available' } | Uninstall-WindowsFeature -Remove
 }
 
-Remove-Item $FilePath
+exit 0

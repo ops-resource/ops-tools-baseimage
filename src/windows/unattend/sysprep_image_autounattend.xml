@@ -103,6 +103,18 @@
                     <Value>${LocalAdministratorPassword}</Value>
                     <PlainText>true</PlainText>
                 </AdministratorPassword>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value>${LocalAdministratorPassword}</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Group>administrators</Group>
+                        <DisplayName>${LocalAdministratorName}</DisplayName>
+                        <Name>${LocalAdministratorName}</Name>
+                        <Description>${LocalAdministratorName}</Description>
+                    </LocalAccount>
+                </LocalAccounts>
             </UserAccounts>
             <TimeZone>New Zealand Standard Time</TimeZone>
         </component>

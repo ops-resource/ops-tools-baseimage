@@ -4,16 +4,6 @@ param()
 $ErrorActionPreference="Stop"
 $ProgressPreference="SilentlyContinue"
 
-for ([byte]$c = [char]'A'; $c -le [char]'Z'; $c++)
-{
-    $variablePath = [char]$c + ':\variables.ps1'
-
-    if (test-path $variablePath) {
-        . $variablePath
-        break
-    }
-}
-
 "Starting $($MyInvocation.MyCommand.Name)" | Out-File -Filepath "$($env:TEMP)\BoxImageCreation_$($MyInvocation.MyCommand.Name).started.txt" -Append
 
 # You cannot enable Windows PowerShell Remoting on network connections that are set to Public
@@ -37,7 +27,6 @@ if(1,3,4,5 -contains (Get-WmiObject win32_computersystem).DomainRole)
 }
 
 # Get network connections
-
 if (Get-Command "Get-NetConnectionProfile" -ErrorAction SilentlyContinue)
 {
     $connections = Get-NetConnectionProfile
@@ -47,7 +36,9 @@ if (Get-Command "Get-NetConnectionProfile" -ErrorAction SilentlyContinue)
         $networkName = $network.Name
         $category = $network.NetworkCategory
         $interfaceIndex = $network.InterfaceIndex
+
         Write-Host "$networkName category was previously set to $category"
+
         Set-NetConnectionProfile -InterfaceIndex $interfaceIndex -NetworkCategory Private -Confirm:$false
         $network = Get-NetConnectionProfile -InterfaceIndex $interfaceIndex
         $networkName = $network.Name
@@ -65,6 +56,7 @@ else
         $network = $_.GetNetwork()
         $networkName = $network.GetName()
         $category = $network.GetCategory()
+
         Write-Host "$networkName category was previously set to $category"
 
         $_.GetNetwork().SetCategory(1)
