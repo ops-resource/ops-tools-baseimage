@@ -14,6 +14,8 @@
 [CmdletBinding()]
 param()
 
+$ProgressPreference="SilentlyContinue"
+
 $uninstallSuccess = $false
 while(!$uninstallSuccess)
 {

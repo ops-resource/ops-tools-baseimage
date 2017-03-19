@@ -1,3 +1,5 @@
+$ProgressPreference="SilentlyContinue"
+
 Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name LocalAccountTokenFilterPolicy -Value 1 -Type DWord
 enable-psremoting -SkipNetworkProfileCheck -Force
 Set-WSManQuickConfig -SkipNetworkProfileCheck -Force

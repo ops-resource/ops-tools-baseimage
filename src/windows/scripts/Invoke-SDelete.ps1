@@ -1,3 +1,4 @@
+$ProgressPreference="SilentlyContinue"
 
 if (Test-Path 'e:\sdelete.exe')
 {

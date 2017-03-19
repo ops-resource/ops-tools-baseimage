@@ -11,6 +11,8 @@
 [CmdletBinding()]
 param()
 
+$ProgressPreference="SilentlyContinue"
+
 Write-Host "Uninstall Chef..."
 if (Test-Path "c:\windows\temp\chef.msi")
 {

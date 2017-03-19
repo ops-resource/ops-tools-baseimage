@@ -11,6 +11,8 @@
 [CmdletBinding()]
 param()
 
+$ProgressPreference="SilentlyContinue"
+
 function LogWrite
 {
     param (
@@ -46,13 +48,13 @@ catch
     LogWrite -logFile $filePath -logText "Unable to reset base. Should be ok if patches have been slipstreamed."
 }
 
-$moduleExist = Get-Module servermanager
+$moduleExist = Get-Module servermanager -InformationAction SilentlyContinue -WarningAction SilentlyContinue
 
 if ($moduleExist)
 {
     LogWrite -logFile $filePath -logText 'Get-WindowsFeature | ? { $_.InstallState -eq "Available" } | Uninstall-WindowsFeature -Remove'
 
-    import-module servermanager
+    import-module servermanager -InformationAction SilentlyContinue -WarningAction SilentlyContinue
     Get-WindowsFeature | Where-Object { $_.InstallState -eq 'Available' } | Uninstall-WindowsFeature -Remove
 }
 
