@@ -77,9 +77,5 @@ $command = '& "c:\windows\system32\sysprep\sysprep.exe" /generalize /oobe /quiet
 LogWrite -logFile $filePath -logText "Invoking sysprep with command: $($command)"
 Invoke-Expression -Command $command
 
-LogWrite -logFile $filePath -logText "Running shutdown"
-& shutdown -s -t 30
-LogWrite -logFile $filePath -logText "shutdown exit code was $LASTEXITCODE"
-
 LogWrite -logFile $filePath -logText "Return exit 0"
 exit 0
