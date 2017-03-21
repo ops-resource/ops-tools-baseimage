@@ -298,9 +298,13 @@
         The list of all files that should be copied prior to starting the tests.
     -->
     <ItemGroup>
-        <!--<TestFilesToCopy Include="$(DirTest)\**\*.*">
+        <!--
+        <TestFilesToCopy
+            Condition=" '$(DirTest)' != '' "
+            Include="$(DirTest)\**\*.*">
             <TargetDirectory>$(DirBuildTest)</TargetDirectory>
-        </TestFilesToCopy>-->
+        </TestFilesToCopy>
+        -->
     </ItemGroup>
 
 
@@ -322,8 +326,10 @@
     -->
     <ItemGroup>
         <!--
-        <TestFilesToGenerate Include="$(DirBuildTemp)\MyFile.txt">
-            <<Encoding>UTF-8</Encoding>
+        <TestFilesToGenerate
+            Condition=" '$(DirBuildTemp)' != '' "
+            Include="$(DirBuildTemp)\MyFile.txt">
+            <Encoding>UTF-8</Encoding>
             <Expression>(MyRegex)</Expression>
             <ReplacementValue>MyAdditionalTemplateValue</ReplacementValue>
             <Template>$(DirTemplates)\MyOtherTemplatefile.txt</Template>
