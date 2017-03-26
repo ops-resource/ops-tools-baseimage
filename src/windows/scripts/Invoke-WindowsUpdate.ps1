@@ -310,7 +310,7 @@ function LogWrite
     $now = Get-Date -format s
 
     Add-Content -Path $logfile -Value "$now $logText"
-    Write-Host $logstring
+    Write-Output $logstring
 }
 
 function New-ScheduledTask
@@ -447,7 +447,7 @@ function SlurpOutput($out_file, $cur_line)
     {
         get-content $out_file | select -skip $cur_line | ForEach {
             $cur_line += 1
-            Write-Host "$_"
+            Write-Output "$_"
         }
     }
 
@@ -462,7 +462,7 @@ $logPath = "$env:TEMP\\win-updates.log"
 
 if ($SkipWindowsUpdates)
 {
-    Write-Host "Skipping windows updates"
+    Write-Output "Skipping windows updates"
     EnableWinRm -logFile $logFile
     exit 0
 }
@@ -499,6 +499,7 @@ $script:SearchResult = New-Object -ComObject 'Microsoft.Update.UpdateColl'
 $script:Cycles = 0
 $script:CycleUpdateCount = 0
 
+EnableWinRm -logFile $logPath
 Check-WindowsUpdates -logFile $logPath
 if ($global:MoreUpdates -eq 1)
 {

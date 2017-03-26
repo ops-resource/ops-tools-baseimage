@@ -23,7 +23,7 @@ function LogWrite
     $now = Get-Date -format s
 
     Add-Content -Path $logfile -Value "$now $logText"
-    Write-Host $logstring
+    Write-Output $logstring
 }
 
 $filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"

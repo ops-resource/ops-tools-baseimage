@@ -11,7 +11,7 @@ function LogWrite
     $now = Get-Date -format s
 
     Add-Content -Path $logfile -Value "$now $logText"
-    Write-Host $logstring
+    Write-Output $logstring
 }
 
 $filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
@@ -76,6 +76,8 @@ else
 $command = '& "c:\windows\system32\sysprep\sysprep.exe" /generalize /oobe /quiet /quit /unattend:"c:\windows\panther\unattend\unattend.xml"'
 LogWrite -logFile $filePath -logText "Invoking sysprep with command: $($command)"
 Invoke-Expression -Command $command
+
+LogWrite -logFile $filePath -logText "sysprep completed with exit code: $($LASTEXITCODE)"
 
 LogWrite -logFile $filePath -logText "Return exit 0"
 exit 0

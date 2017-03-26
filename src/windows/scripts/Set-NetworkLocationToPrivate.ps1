@@ -37,14 +37,14 @@ if (Get-Command "Get-NetConnectionProfile" -ErrorAction SilentlyContinue)
         $category = $network.NetworkCategory
         $interfaceIndex = $network.InterfaceIndex
 
-        Write-Host "$networkName category was previously set to $category"
+        Write-Output "$networkName category was previously set to $category"
 
         Set-NetConnectionProfile -InterfaceIndex $interfaceIndex -NetworkCategory Private -Confirm:$false
         $network = Get-NetConnectionProfile -InterfaceIndex $interfaceIndex
         $networkName = $network.Name
         $category = $network.NetworkCategory
 
-        Write-Host "$networkName changed to category $category"
+        Write-Output "$networkName changed to category $category"
     }
 }
 else
@@ -57,7 +57,7 @@ else
         $networkName = $network.GetName()
         $category = $network.GetCategory()
 
-        Write-Host "$networkName category was previously set to $category"
+        Write-Output "$networkName category was previously set to $category"
 
         $_.GetNetwork().SetCategory(1)
 
@@ -65,6 +65,6 @@ else
         $networkName = $network.GetName()
         $category = $network.GetCategory()
 
-        Write-Host "$networkName changed to category $category"
+        Write-Output "$networkName changed to category $category"
     }
 }

@@ -16,20 +16,46 @@ param()
 
 $ProgressPreference="SilentlyContinue"
 
+function LogWrite
+{
+    param (
+        [string] $logText,
+        [string] $logFile
+    )
+
+    $now = Get-Date -format s
+
+    Add-Content -Path $logfile -Value "$now $logText"
+    Write-Output $logstring
+}
+
+$filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
+LogWrite -logFile $filePath -logText "Starting $($MyInvocation.MyCommand.Name)"
+
+$featuresToRemove = @(
+    'Desktop-Experience',
+    'InkAndHandwritingServices',
+    'Server-Media-Foundation',
+    'Powershell-ISE'
+)
+LogWrite -logFile $filePath -logText "Removing windows features: $($featuresToRemove -join ', ')"
+
+$featuresToRemove | Remove-WindowsFeature
+
 $uninstallSuccess = $false
 while(!$uninstallSuccess)
 {
-    Write-Output "Attempting to uninstall features..."
+    LogWrite -logFile $filePath -logText "Attempting to uninstall features..."
     try
     {
         Get-WindowsFeature | Where-Object { $_.InstallState -eq 'Available' } | Uninstall-WindowsFeature -Remove -ErrorAction Stop
-        Write-Output "Uninstall succeeded!"
+        LogWrite -logFile $filePath -logText "Uninstall succeeded!"
 
         $uninstallSuccess = $true
     }
     catch
     {
-        Write-Output "Waiting two minutes before next attempt"
+        LogWrite -logFile $filePath -logText "Waiting two minutes before next attempt"
         Start-Sleep -Seconds 120
     }
 }

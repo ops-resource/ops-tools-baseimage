@@ -13,7 +13,7 @@ param()
 
 $ProgressPreference="SilentlyContinue"
 
-Write-Host "Uninstall Chef..."
+Write-Output "Uninstall Chef..."
 if (Test-Path "c:\windows\temp\chef.msi")
 {
     Start-Process MSIEXEC.exe '/uninstall c:\windows\temp\chef.msi /quiet' -Wait
