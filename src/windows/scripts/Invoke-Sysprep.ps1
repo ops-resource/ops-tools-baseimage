@@ -1,83 +1,90 @@
 $ProgressPreference="SilentlyContinue"
 
+# NOTE: this script should not log anything to disk because the disk should be left in the state that we
+#       want to package it in.
 
-function LogWrite
-{
-    param (
-        [string] $logText,
-        [string] $logFile
-    )
+Write-Output "Starting $($MyInvocation.MyCommand.Name)"
 
-    $now = Get-Date -format s
-
-    Add-Content -Path $logfile -Value "$now $logText"
-    Write-Output $logstring
-}
-
-$filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
-LogWrite -logFile $filePath -logText "Starting $($MyInvocation.MyCommand.Name)"
-
-@('c:\unattend.xml', 'c:\windows\panther\unattend\unattend.xml', 'c:\windows\panther\unattend.xml', 'c:\windows\system32\sysprep\unattend.xml') | Foreach-Object {
+@('c:\unattend.xml', 'c:\windows\system32\sysprep\unattend.xml') | Foreach-Object {
     if (test-path $_)
     {
-        LogWrite -logFile $filePath -logText "Removing $($_)"
+        Write-Output "Removing $($_)"
         try
         {
-            remove-item $_ > $null
+            remove-item $_ -Force -ErrorAction SilentlyContinue
         }
         catch
         {
-            LogWrite -logFile $filePath -logText "$($_.Exception.ToString())"
+            Write-Output "$($_.Exception.ToString())"
         }
     }
 }
 
-$path = 'c:\windows\panther\unattend'
-if (!(test-path $path))
-{
-    LogWrite -logFile $filePath -logText "Creating directory $path"
-    try
+@('c:\windows\panther', 'c:\windows\system32\sysprep\panther') | Foreach-Object {
+    if (test-path $_)
     {
-        New-Item -path $path -type directory > $null
-    }
-    catch
-    {
-        LogWrite -logFile $filePath -logText "$($_.Exception.ToString())"
+        Write-Output "Removing $($_)"
+        try
+        {
+            remove-item $_ -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        catch
+        {
+            Write-Output "$($_.Exception.ToString())"
+        }
     }
 }
 
-if (Test-Path 'e:\sysprep-unattend.xml')
-{
-    LogWrite -logFile $filePath -logText "Copying e:\sysprep-unattend.xml to c:\windows\panther\unattend\unattend.xml"
-    try
-    {
-        Copy-Item 'e:\sysprep-unattend.xml' 'c:\windows\panther\unattend\unattend.xml' > $null
-    }
-    catch
-    {
-        LogWrite -logFile $filePath -logText "$($_.Exception.ToString())"
-    }
+$files = @{
+    'sysprep-unattend.xml' = 'c:\windows\panther\unattend\unattend.xml';
+    'setupcomplete.cmd' = 'c:\windows\Setup\Scripts\setupcomplete.cmd';
 }
-else
+
+$drives = @('e', 'f')
+foreach($item in $files.GetEnumerator())
 {
-    LogWrite -logFile $filePath -logText "Copying f:\sysprep-unattend.xml to c:\windows\panther\unattend\unattend.xml"
-    try
+    $fileName = $item.Key
+    $target = $item.Value
+    foreach($drive in $drives)
     {
-        Copy-Item 'f:\sysprep-unattend.xml' 'c:\windows\panther\unattend\unattend.xml'> $null
-    }
-    catch
-    {
-        LogWrite -logFile $filePath -logText "$($_.Exception.ToString())"
+        if (Test-Path "$($drive):\$($fileName)")
+        {
+            Write-Output "Copying $($drive):\$($fileName) to $($target)"
+            try
+            {
+                $path = Split-Path $target -Parent
+                if (-not (test-path $path))
+                {
+                    Write-Output "Creating directory $path"
+                    try
+                    {
+                        New-Item -path $path -type directory
+                    }
+                    catch
+                    {
+                        Write-Output "$($_.Exception.ToString())"
+                    }
+                }
+
+                Copy-Item "$($drive):\$($fileName)" $target
+            }
+            catch
+            {
+                Write-Output "$($_.Exception.ToString())"
+            }
+
+            break
+        }
     }
 }
 
 # Don't exit during sysprep because Packer doesn't notice that the VM is stopped. So run sysprep, then return an exit code
 # which Packer does understand?
 $command = '& "c:\windows\system32\sysprep\sysprep.exe" /generalize /oobe /quiet /quit /unattend:"c:\windows\panther\unattend\unattend.xml"'
-LogWrite -logFile $filePath -logText "Invoking sysprep with command: $($command)"
+Write-Output "Invoking sysprep with command: $($command)"
 Invoke-Expression -Command $command
 
-LogWrite -logFile $filePath -logText "sysprep completed with exit code: $($LASTEXITCODE)"
+Write-Output "sysprep completed with exit code: $($LASTEXITCODE)"
 
-LogWrite -logFile $filePath -logText "Return exit 0"
+Write-Output "Return exit 0"
 exit 0

@@ -1,20 +1,10 @@
 $ProgressPreference="SilentlyContinue"
 
-function LogWrite
-{
-    param (
-        [string] $logText,
-        [string] $logFile
-    )
-
-    $now = Get-Date -format s
-
-    Add-Content -Path $logfile -Value "$now $logText"
-    Write-Output $logstring
-}
+# NOTE: this script should not log anything to disk because it will be in charge of defragmentation
+#       just prior to zero-ing of the disk space. Writing log files here defeats the purpose!
 
 $filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
-LogWrite -logFile $filePath -logText "Starting $($MyInvocation.MyCommand.Name)"
+Write-Output "Starting $($MyInvocation.MyCommand.Name)"
 
 if (Test-Path 'e:\udefrag.exe')
 {
@@ -25,7 +15,7 @@ else
     $scriptPath = 'f:\udefrag.exe'
 }
 
-LogWrite -logFile $filePath -logText "Starting udefrag from: $($scriptPath)"
+Write-Output "Starting udefrag from: $($scriptPath)"
 & "$scriptPath" --optimize --repeat $($env:SystemDrive)
 
-LogWrite -logFile $filePath -logText "udefrag completed with exit code: $($LASTEXITCODE)"
+Write-Output "udefrag completed with exit code: $($LASTEXITCODE)"

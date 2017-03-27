@@ -1,20 +1,9 @@
 $ProgressPreference="SilentlyContinue"
 
-function LogWrite
-{
-    param (
-        [string] $logText,
-        [string] $logFile
-    )
+# NOTE: this script should not log anything to disk because it is in charge of optimizing the
+#       disk just after defragmentation and prior to empty space zero-ing. Writing log files here defeats the purpose!
 
-    $now = Get-Date -format s
-
-    Add-Content -Path $logfile -Value "$now $logText"
-    Write-Output $logstring
-}
-
-$filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
-LogWrite -logFile $filePath -logText "Starting $($MyInvocation.MyCommand.Name)"
+Write-Output "Starting $($MyInvocation.MyCommand.Name)"
 
 
 Optimize-Volume -DriveLetter $($env:SystemDrive)[0] -Verbose

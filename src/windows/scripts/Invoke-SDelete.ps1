@@ -1,20 +1,9 @@
 $ProgressPreference="SilentlyContinue"
 
-function LogWrite
-{
-    param (
-        [string] $logText,
-        [string] $logFile
-    )
+# NOTE: this script should not log anything to disk because it is in charge of zero-ing out the empty
+#       space. Writing to the disk defeats the purpose!
 
-    $now = Get-Date -format s
-
-    Add-Content -Path $logfile -Value "$now $logText"
-    Write-Output $logstring
-}
-
-$filePath = "$($env:TEMP)\$($MyInvocation.MyCommand.Name).started.txt"
-LogWrite -logFile $filePath -logText "Starting $($MyInvocation.MyCommand.Name)"
+Write-Output "Starting $($MyInvocation.MyCommand.Name)"
 
 if (Test-Path 'e:\sdelete.exe')
 {
@@ -25,7 +14,7 @@ else
     $scriptPath = 'f:\sdelete.exe'
 }
 
-LogWrite -logFile $filePath -logText "Starting sdelete from: $($scriptPath)"
+Write-Output "Starting sdelete from: $($scriptPath)"
 & "$scriptPath" -accepteula -s -z $($env:SystemDrive)
 
-LogWrite -logFile $filePath -logText "sdelete completed with exit code: $($LASTEXITCODE)"
+Write-Output "sdelete completed with exit code: $($LASTEXITCODE)"
