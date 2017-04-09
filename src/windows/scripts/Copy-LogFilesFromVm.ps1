@@ -10,8 +10,12 @@ $cred = New-object System.Management.Automation.PSCredential $userName, $passwor
 $session = New-PSSession -VMName $vmName -Credential $cred
 
 $pathsToCopy = @{
-    'c:\windows\temp\*' = 'windows'
-    "c:\users\$($userName)\AppData\Local\Temp\*" = 'user'
+    'c:\windows\temp' = 'windows'
+    "c:\users\$($userName)\AppData\Local\Temp" = 'user'
+    "c:\temp" = "root"
+    "c:\Windows\System32\Sysprep\Panther" = "sysprep.generalize"
+    "c:\Windows\Panther" = "sysprep.specialize"
+    "C:\Windows\Panther\UnattendGC" = "windows.unattend"
 }
 
 foreach($path in $pathsToCopy.GetEnumerator())
@@ -31,10 +35,19 @@ foreach($path in $pathsToCopy.GetEnumerator())
         }
 
     Write-Verbose "Copying files from the remote resource: $remoteFiles"
+
+    $localTargetDirectory = Join-Path $targetDirectory $path.Value
+    Write-Verbose "Copying files to the local directory at: $localTargetDirectory"
     foreach($fileToCopy in $remoteFiles)
     {
-        $relativePath = $fileToCopy.SubString($path.Key.Length)
-        $localPath = Join-Path $targetDirectory $relativePath
+        $relativePath = $fileToCopy.SubString($path.Key.Length )
+        $localPath = Join-Path $localTargetDirectory $relativePath
+
+        $localDirectory = Split-Path -Path $localPath -Parent
+        if (-not (Test-Path $localDirectory))
+        {
+            New-Item -Path $localDirectory -ItemType Directory
+        }
 
         Write-Verbose "Copying $fileToCopy to $localPath"
         Copy-item -FromSession $session -Path $fileToCopy -Destination $localPath -Verbose -ErrorAction SilentlyContinue

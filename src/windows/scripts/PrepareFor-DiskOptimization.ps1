@@ -17,7 +17,12 @@ $ProgressPreference="SilentlyContinue"
 #       defragmentation and zero-ing of the disk space. Writing log files here defeats the purpose!
 
 Write-Output "Removing temp folders"
-$tempfolders = @("C:\Windows\Temp\*", "C:\Windows\Prefetch\*", "C:\Documents and Settings\*\Local Settings\temp\*", "C:\Users\*\Appdata\Local\Temp\*")
+$tempfolders = @(
+    "C:\Windows\Temp\*",
+    "C:\Windows\Prefetch\*",
+    "C:\Documents and Settings\*\Local Settings\temp\*",
+    "C:\Users\*\Appdata\Local\Temp\*",
+    "c:\temp\*")
 Remove-Item $tempfolders -ErrorAction SilentlyContinue -Force -Recurse
 
 if ($SkipWindowsUpdates)
