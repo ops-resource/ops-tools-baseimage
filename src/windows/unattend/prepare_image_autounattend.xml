@@ -376,14 +376,15 @@
                 the updates.
             -->
             <AutoLogon>
-                <Password>
-                    <Value>${LocalAdministratorPassword}</Value>
-                    <PlainText>true</PlainText>
-                </Password>
                 <Enabled>true</Enabled>
-                <Username>${LocalAdministratorName}</Username>
+                <LogonCount>100</LogonCount>
+                <Password>
+                    <PlainText>true</PlainText>
+                    <Value>${LocalAdministratorPassword}</Value>
+                </Password>
+                <Username>Administrator</Username>
             </AutoLogon>
-            <CopyProfile>true</CopyProfile>
+            <CopyProfile>false</CopyProfile>
             <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
                     <CommandLine>cmd /c > c:\windows\temp\03-DisableNetworkPrompt.txt 2>$1 (reg add "HKLM\System\CurrentControlSet\Control\Network\NewNetworkWindowOff" /f)</CommandLine>
@@ -501,18 +502,6 @@
                     <Value>${LocalAdministratorPassword}</Value>
                     <PlainText>true</PlainText>
                 </AdministratorPassword>
-                <LocalAccounts>
-                    <LocalAccount wcm:action="add">
-                        <Password>
-                            <Value>${LocalAdministratorPassword}</Value>
-                            <PlainText>true</PlainText>
-                        </Password>
-                        <Group>administrators</Group>
-                        <DisplayName>${LocalAdministratorName}</DisplayName>
-                        <Name>${LocalAdministratorName}</Name>
-                        <Description>${LocalAdministratorName}</Description>
-                    </LocalAccount>
-                </LocalAccounts>
             </UserAccounts>
             <WindowsFeatures>
                 <ShowInternetExplorer>true</ShowInternetExplorer>
