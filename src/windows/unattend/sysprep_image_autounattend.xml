@@ -58,6 +58,19 @@
         the computer processes the auditUser settings.
     -->
     <settings pass="specialize">
+        <!--
+            Set the computer name and the owner
+        -->
+        <component
+            name="Microsoft-Windows-Shell-Setup"
+            processorArchitecture="amd64"
+            publicKeyToken="31bf3856ad364e35"
+            language="neutral"
+            versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ComputerName>*</ComputerName>
+        </component>
     </settings>
 
     <!--
@@ -98,13 +111,6 @@
                 <SkipUserOOBE>true</SkipUserOOBE>
                 <SkipMachineOOBE>true</SkipMachineOOBE>
             </OOBE>
-            <UserAccounts>
-                <AdministratorPassword>
-                    <Value>${LocalAdministratorPassword}</Value>
-                    <PlainText>true</PlainText>
-                </AdministratorPassword>
-            </UserAccounts>
-            <TimeZone>New Zealand Standard Time</TimeZone>
         </component>
     </settings>
 </unattend>
