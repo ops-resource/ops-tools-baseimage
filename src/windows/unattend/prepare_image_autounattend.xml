@@ -361,7 +361,7 @@
                     <PlainText>true</PlainText>
                     <Value>${LocalAdministratorPassword}</Value>
                 </Password>
-                <Username>Administrator</Username>
+                <Username>${LocalAdministratorName}</Username>
             </AutoLogon>
             <CopyProfile>false</CopyProfile>
             <FirstLogonCommands>
@@ -435,6 +435,14 @@
                     <CommandLine>cmd /c > c:\windows\temp\55-DisableHibernate.txt 2>$1 (reg ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f)</CommandLine>
                     <Order>55</Order>
                     <Description>Disable Hibernation Mode</Description>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+
+                <!-- Windows Store Apps -->
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd /c > c:\windows\temp\65-RemoveWindowsStoreApps.txt 2>$1 (FOR %i IN (A B C D E F G H I J K L N M O P Q R S T U V W X Y Z) DO IF EXIST %i:\Remove-WindowsStoreApps.ps1 (powershell -executionpolicy bypass -noprofile -File %i:\Remove-WindowsStoreApps.ps1 ))</CommandLine>
+                    <Order>65</Order>
+                    <Description>Remove Windows Store apps</Description>
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
 

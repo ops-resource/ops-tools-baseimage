@@ -111,6 +111,12 @@
                 <SkipUserOOBE>true</SkipUserOOBE>
                 <SkipMachineOOBE>true</SkipMachineOOBE>
             </OOBE>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>${LocalAdministratorPassword}</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+            </UserAccounts>
         </component>
     </settings>
 </unattend>

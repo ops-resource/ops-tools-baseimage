@@ -499,7 +499,6 @@ $script:SearchResult = New-Object -ComObject 'Microsoft.Update.UpdateColl'
 $script:Cycles = 0
 $script:CycleUpdateCount = 0
 
-<#
 Check-WindowsUpdates -logFile $logPath
 if ($global:MoreUpdates -eq 1)
 {
@@ -509,15 +508,3 @@ else
 {
     Check-ContinueRestartOrEnd -logFile $logPath
 }
-#>
-
-
-
-
-
-
-
-
-
-# TODO: REMOVE THIS WHEN YOU UNCOMMENT THE SECTION ABOVE, OTHERWISE PACKER HATES YOU!!!!!!!!!!!!!!
-EnableWinRm -logFile $logPath
