@@ -80,7 +80,7 @@ foreach($item in $files.GetEnumerator())
 
 # Don't exit during sysprep because Packer doesn't notice that the VM is stopped. So run sysprep, then return an exit code
 # which Packer does understand?
-$command = '& "c:\windows\system32\sysprep\sysprep.exe" /generalize /oobe /quiet /quit /unattend:"c:\windows\panther\unattend\unattend.xml"'
+$command = '& "c:\windows\system32\sysprep\sysprep.exe" /generalize /oobe /quiet /shutdown /unattend:"c:\windows\panther\unattend\unattend.xml"'
 Write-Output "Invoking sysprep with command: $($command)"
 Invoke-Expression -Command $command
 
