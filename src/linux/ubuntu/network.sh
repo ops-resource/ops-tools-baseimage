@@ -9,3 +9,7 @@ echo "pre-up sleep 2" >> /etc/network/interfaces
 
 # Disable DNS reverse lookup
 echo "UseDNS no" >> /etc/ssh/sshd_config
+
+# Disable the Network Manager
+systemctl stop NetworkManager.service
+systemctl disable NetworkManager.service
