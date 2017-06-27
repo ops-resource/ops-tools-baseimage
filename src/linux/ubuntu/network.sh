@@ -13,3 +13,7 @@ echo "UseDNS no" >> /etc/ssh/sshd_config
 # Disable the Network Manager
 systemctl stop NetworkManager.service
 systemctl disable NetworkManager.service
+
+# Enable the firewall, blocking all ports except for port 22 (SSH)
+ufw allow ssh
+ufw --force enable
