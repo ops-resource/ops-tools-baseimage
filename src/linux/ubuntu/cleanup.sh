@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Clean up
-apt-get -y remove dkms
-apt-get -y autoremove
-apt-get -y clean
+apt-get --assume-yes remove dkms
+apt-get --assume-yes autoremove
+apt-get --assume-yes clean
 
 # Remove temporary files
 rm -rf /tmp/*
