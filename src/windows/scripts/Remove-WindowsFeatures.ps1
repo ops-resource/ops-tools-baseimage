@@ -36,7 +36,8 @@ $featuresToRemove = @(
     'Desktop-Experience',
     'InkAndHandwritingServices',
     'Server-Media-Foundation',
-    'Powershell-ISE'
+    'Powershell-ISE',
+    'FS-SMB1'                       # Remove file sharing via the SMB1 protocol (https://blogs.technet.microsoft.com/filecab/2016/09/16/stop-using-smb1/)
 )
 LogWrite -logFile $filePath -logText "Removing windows features: $($featuresToRemove -join ', ')"
 
