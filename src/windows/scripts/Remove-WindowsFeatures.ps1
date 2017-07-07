@@ -41,7 +41,20 @@ $featuresToRemove = @(
 )
 LogWrite -logFile $filePath -logText "Removing windows features: $($featuresToRemove -join ', ')"
 
-$featuresToRemove | Remove-WindowsFeature
+foreach($feature in $featuresToRemove)
+{
+    try
+    {
+        if (Get-WindowsFeature -Name $feature -ErrorAction SilentlyContinue)
+        {
+            Remove-WindowsFeature -Name $feature
+        }
+    }
+    catch
+    {
+        # Just continue
+    }
+}
 
 $uninstallSuccess = $false
 while(!$uninstallSuccess)
