@@ -111,6 +111,7 @@
                 <SkipUserOOBE>true</SkipUserOOBE>
                 <SkipMachineOOBE>true</SkipMachineOOBE>
             </OOBE>
+            <TimeZone>UTC</TimeZone>
             <UserAccounts>
                 <AdministratorPassword>
                     <Value>${LocalAdministratorPassword}</Value>
