@@ -483,7 +483,7 @@
                 <ProtectYourPC>3</ProtectYourPC>
                 <NetworkLocation>Work</NetworkLocation>
             </OOBE>
-            <TimeZone>New Zealand Standard Time</TimeZone>
+            <TimeZone>UTC</TimeZone>
             <UserAccounts>
                 <AdministratorPassword>
                     <Value>${LocalAdministratorPassword}</Value>
@@ -509,9 +509,9 @@
             xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <InputLocale>1409:00000409</InputLocale>
-            <SystemLocale>en-NZ</SystemLocale>
-            <UILanguage>en-NZ</UILanguage>
-            <UserLocale>en-NZ</UserLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
             <UILanguageFallback>en-US</UILanguageFallback>
         </component>
     </settings>

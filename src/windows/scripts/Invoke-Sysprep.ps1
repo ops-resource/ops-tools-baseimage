@@ -1,5 +1,38 @@
 $ProgressPreference="SilentlyContinue"
 
+# -------------------------- Script functions --------------------------------
+
+function Find-FilePathOnDvd
+{
+    [CmdletBinding()]
+    param(
+        [string] $fileName
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    try
+    {
+        $drives = Get-WMIObject -Class Win32_CDROMDrive -ErrorAction Stop
+        foreach($drive in $drives)
+        {
+            $path = Join-Path $drive.Drive $fileName
+            if (Test-Path $path)
+            {
+                return $path
+            }
+        }
+    }
+    catch
+    {
+        Continue;
+    }
+
+    return ''
+}
+
+# -------------------------- Script start ------------------------------------
+
 # NOTE: this script should not log anything to disk because the disk should be left in the state that we
 #       want to package it in.
 
@@ -40,41 +73,34 @@ $files = @{
     'setupcomplete.cmd' = 'c:\windows\Setup\Scripts\setupcomplete.cmd';
 }
 
-$drives = @('e', 'f')
 foreach($item in $files.GetEnumerator())
 {
     $fileName = $item.Key
     $target = $item.Value
-    foreach($drive in $drives)
+
+    $scriptPath = Find-FilePathOnDvd -fileName $fileName
+    Write-Output "Copying $scriptPath to $target"
+    try
     {
-        if (Test-Path "$($drive):\$($fileName)")
+        $path = Split-Path $target -Parent
+        if (-not (test-path $path))
         {
-            Write-Output "Copying $($drive):\$($fileName) to $($target)"
+            Write-Output "Creating directory $path"
             try
             {
-                $path = Split-Path $target -Parent
-                if (-not (test-path $path))
-                {
-                    Write-Output "Creating directory $path"
-                    try
-                    {
-                        New-Item -path $path -type directory
-                    }
-                    catch
-                    {
-                        Write-Output "$($_.Exception.ToString())"
-                    }
-                }
-
-                Copy-Item "$($drive):\$($fileName)" $target
+                New-Item -path $path -type directory
             }
             catch
             {
                 Write-Output "$($_.Exception.ToString())"
             }
-
-            break
         }
+
+        Copy-Item $scriptPath $target
+    }
+    catch
+    {
+        Write-Output "$($_.Exception.ToString())"
     }
 }
 
