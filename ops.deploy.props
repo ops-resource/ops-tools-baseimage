@@ -162,6 +162,20 @@
             <PostSteps>
             </PostSteps>
         </DeployStepsToExecute>
+
+        <DeployStepsToExecute Include="$(DeployStepsPrepareReleaseNotes)">
+            <Properties>
+            </Properties>
+            <Groups>
+                prepare;
+                prepare.get;
+                prepare.get.releasenotes;
+            </Groups>
+            <PreSteps>
+            </PreSteps>
+            <PostSteps>
+            </PostSteps>
+        </DeployStepsToExecute>
         <!--
         <DeployStepsToExecute Include="$(DeployStepsPrepareTagVcs)">
             <Properties>
@@ -194,20 +208,6 @@
             </PostSteps>
         </DeployStepsToExecute>
         -->
-        <DeployStepsToExecute Include="$(DeployStepsPushToNuget)">
-            <Properties>
-                Configuration=$(ProductionConfiguration);
-                Platform=$(Platform);
-            </Properties>
-            <Groups>
-                NuGet;
-                Push;
-            </Groups>
-            <PreSteps>
-            </PreSteps>
-            <PostSteps>
-            </PostSteps>
-        </DeployStepsToExecute>
         <!--
         <DeployStepsToExecute Include="$(DeployStepsPushToDirectory)">
             <Properties>
@@ -237,6 +237,7 @@
             <PostSteps>
             </PostSteps>
         </DeployStepsToExecute>
+        -->
         <DeployStepsToExecute Include="$(DeployStepsPushToGitHubRelease)">
             <Properties>
                 Configuration=$(ProductionConfiguration);
@@ -251,7 +252,7 @@
             <PostSteps>
             </PostSteps>
         </DeployStepsToExecute>
-        -->
+        <!--
         <DeployStepsToExecute Include="$(DeployStepsPushToGitBranch)">
             <Properties>
                 Configuration=$(ProductionConfiguration);
@@ -274,6 +275,27 @@
             <Groups>
                 Git;
                 Push;
+            </Groups>
+            <PreSteps>
+            </PreSteps>
+            <PostSteps>
+            </PostSteps>
+        </DeployStepsToExecute>
+        -->
+
+        <!--
+            The last step is pushing to NuGet because we can't remove packages from NuGet
+        -->
+        <DeployStepsToExecute
+            Condition=" '$(IsMasterBranch)' == 'true' "
+            Include="$(DeployStepsPushToNuget)">
+            <Properties>
+                Configuration=$(ProductionConfiguration);
+                Platform=$(Platform);
+            </Properties>
+            <Groups>
+                deploy;
+                deploy.package.nuget;
             </Groups>
             <PreSteps>
             </PreSteps>
@@ -389,6 +411,25 @@
             Condition=" '$(DirBuildDeploy)' != '' "
             Include="$(DirBuildDeploy)\*.symbols.nupkg" />
         -->
+    </ItemGroup>
+
+
+    <!--
+        **** PUSHTO - GITHUB RELEASE ****
+    -->
+    <!--
+        The ItemGroup defining the files that should be pushed to a GitHub release. All properties
+        except for the Repository allow the use of build templates, e.g. $(DirBuildDeploy)\myarchive-${VersionSemantic}.zip
+    -->
+    <ItemGroup Condition=" '$(ShouldLoadPushToGitHubReleaseSpecs)' == 'true' ">
+        <PushToGitHubReleaseSpecs Include="${VersionSemantic}">
+            <Repository>$(GitHubRepositoryName)</Repository>
+            <Description>${ReleaseNotes}</Description>
+            <IncludedFiles>
+            </IncludedFiles>
+            <ExcludedFiles>
+            </ExcludedFiles>
+        </PushToGitHubReleaseSpecs>
     </ItemGroup>
 
 
