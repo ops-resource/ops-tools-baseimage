@@ -20,9 +20,11 @@
     </metadata>
     <files>
         <file
-            exclude="$DirSrc$\linux\*.nuspec"
-            src="$DirSrc$\linux\**\*.*"
-            target="" />
+            src="$DirSrc$\linux\preseed\*.*"
+            target="preseed" />
+        <file
+            src="$DirSrc$\linux\scripts\*.*"
+            target="scripts" />
 
         <file
             src="$DirWorkspace$\README.md" />
