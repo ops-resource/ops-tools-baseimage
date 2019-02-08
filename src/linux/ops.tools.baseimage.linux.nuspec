@@ -20,11 +20,11 @@
     </metadata>
     <files>
         <file
-            src="$DirSrc$\linux\preseed\*.*"
-            target="preseed" />
+            src="$DirSrc$\linux\ubuntu\preseed\*.*"
+            target="ubuntu\preseed" />
         <file
-            src="$DirSrc$\linux\scripts\*.*"
-            target="scripts" />
+            src="$DirSrc$\linux\ubuntu\scripts\*.*"
+            target="ubuntu\scripts" />
 
         <file
             src="$DirWorkspace$\README.md" />
